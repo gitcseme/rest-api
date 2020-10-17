@@ -39,7 +39,7 @@ namespace TwitterBook2.Services
                 Email = email,
                 UserName = email
             };
-            
+
             var result = await _userManager.CreateAsync(newUser, password);
 
             if (!result.Succeeded)
@@ -51,6 +51,35 @@ namespace TwitterBook2.Services
             }
 
             // JWT
+            return GenerateJWTAuthenticationResult(newUser);
+        }
+
+        public async Task<AuthenticationResult> LoginAsync(string email, string password)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User does not exists" }
+                };
+            }
+
+            var userHasValidPassword = await _userManager.CheckPasswordAsync(user, password);
+            if (!userHasValidPassword)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User's password combination is wrong" }
+                };
+            }
+
+            // JWT
+            return GenerateJWTAuthenticationResult(user);
+        }
+
+        private AuthenticationResult GenerateJWTAuthenticationResult(IdentityUser newUser)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
