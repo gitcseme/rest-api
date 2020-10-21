@@ -51,5 +51,14 @@ namespace TwitterBook2.Services
             int updated = await _dataContext.SaveChangesAsync();
             return updated > 0;
         }
+
+        public async Task<bool> UserOwnsPostAsync(Guid postId, string userId)
+        {
+            var post = await _dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(p => p.Id == postId);
+            if (post == null || post.UserId != userId)
+                return false;
+
+            return true;
+        }
     }
 }
