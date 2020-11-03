@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TwitterBook2.Domain
+namespace TwitterBook2.Contracts.V1.Requests
 {
-    public class AuthenticationResult
+    public class RefreshTokenRequest
     {
         public string Token { get; set; }
 
-        public bool Success { get; set; }
-
         public string RefreshToken { get; set; }
-
-        public IEnumerable<string> Errors { get; set; }
     }
 }
