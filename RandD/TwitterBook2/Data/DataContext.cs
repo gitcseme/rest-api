@@ -15,7 +15,18 @@ namespace TwitterBook2.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<PostTag>()
+                .Ignore(x => x.Post)
+                .HasKey(x => new { x.PostId, x.TagName });
+        }
+
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<PostTag> PostTags { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

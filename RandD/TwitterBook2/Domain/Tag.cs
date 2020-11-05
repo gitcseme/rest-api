@@ -8,18 +8,16 @@ using System.Threading.Tasks;
 
 namespace TwitterBook2.Domain
 {
-    public class Post
+    public class Tag
     {
         [Key]
-        public Guid Id { get; set; }
-
         public string Name { get; set; }
 
-        public string UserId { get; set; }
+        public string CreatorId { get; set; }
 
-        [ForeignKey(nameof(UserId))]
-        public IdentityUser User { get; set; }
+        [ForeignKey(nameof(CreatorId))]
+        public IdentityUser CreatedBy { get; set; }
 
-        public virtual List<PostTag> Tags { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

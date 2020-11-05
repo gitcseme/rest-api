@@ -55,6 +55,12 @@ namespace TwitterBook2
 
             services.AddSingleton(tokenValidationParameters);
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TagViewer",
+                    builder => builder.RequireClaim("tags.view", "true"));
+            });
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

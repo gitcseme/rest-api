@@ -18,5 +18,6 @@ namespace TwitterBook2.Services
 
         Task<bool> DeletePostAsync(Guid postId);
         Task<bool> UserOwnsPostAsync(Guid postId, string userId);
+        Task<List<Tag>> GetAllTagsAsync();
     }
 }
