@@ -57,7 +57,10 @@ namespace TwitterBook2.Services
 
         public async Task<Post> GetPostByIdAsync(Guid postId)
         {
-            return await _dataContext.Posts.SingleOrDefaultAsync(p => p.Id == postId);
+            return await _dataContext
+                .Posts
+                .Include(p => p.Tags)
+                .SingleOrDefaultAsync(p => p.Id == postId);
         }
 
         public async Task<List<Post>> GetPostsAsync()

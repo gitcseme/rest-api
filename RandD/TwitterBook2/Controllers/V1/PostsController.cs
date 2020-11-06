@@ -25,6 +25,7 @@ namespace TwitterBook2.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
+        [Authorize(Policy = "MustWorkForTourBD")]
         public async Task<IActionResult> Get([FromRoute] Guid postId)
         {
             var post = await _postService.GetPostByIdAsync(postId);

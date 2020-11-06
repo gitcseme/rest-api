@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using TwitterBook2.Services;
+using TwitterBook2.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TwitterBook2
 {
@@ -38,6 +40,19 @@ namespace TwitterBook2
 
             services.AddControllers();
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TagViewer",
+                    builder => builder.RequireClaim("tags.view", "true"));
+
+                options.AddPolicy("MustWorkForTourBD", policy =>
+                {
+                    policy.AddRequirements(new WorksForCompanyRequirement("tourBD.com"));
+                });
+            });
+
+            services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
+
             // JWT settings
             var jwtSettings = new JwtSettings();
             Configuration.Bind(nameof(jwtSettings), jwtSettings);
@@ -54,12 +69,6 @@ namespace TwitterBook2
             };
 
             services.AddSingleton(tokenValidationParameters);
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("TagViewer",
-                    builder => builder.RequireClaim("tags.view", "true"));
-            });
 
             services.AddAuthentication(x =>
             {
