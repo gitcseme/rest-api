@@ -5,14 +5,8 @@ using System.Threading.Tasks;
 
 namespace TwitterBook2.Contracts.V1.Responses
 {
-    public class PostResponse
+    public class TagResponse
     {
-        public Guid Id { get; set; }
-
         public string Name { get; set; }
-
-        public string UserId { get; set; }
-
-        public virtual IEnumerable<TagResponse> Tags { get; set; }
     }
 }

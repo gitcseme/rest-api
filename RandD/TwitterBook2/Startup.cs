@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using TwitterBook2.Services;
 using TwitterBook2.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 
 namespace TwitterBook2
 {
@@ -30,6 +31,8 @@ namespace TwitterBook2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(Startup));
+
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));

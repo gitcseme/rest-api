@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TwitterBook2.Contracts.V1;
+using TwitterBook2.Contracts.V1.Responses;
 using TwitterBook2.Controllers.V1.Requests;
-using TwitterBook2.Controllers.V1.Responses;
 using TwitterBook2.Domain;
 using TwitterBook2.Extensions;
 using TwitterBook2.Services;
@@ -17,11 +18,13 @@ namespace TwitterBook2.Controllers.V1
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PostsController : Controller
     {
-        private IPostService _postService;
+        private readonly IPostService _postService;
+        private readonly IMapper _mapper;
 
-        public PostsController(IPostService postService)
+        public PostsController(IPostService postService, IMapper mapper)
         {
             _postService = postService;
+            _mapper = mapper;
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
@@ -32,7 +35,13 @@ namespace TwitterBook2.Controllers.V1
             if (post == null)
                 return NotFound();
 
-            return Ok(post);
+            return Ok(new PostResponse
+            {
+                Id = post.Id,
+                Name = post.Name,
+                UserId = post.UserId,
+                Tags = post.Tags.Select(pt => new TagResponse { Name = pt.TagName })
+            });
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -49,7 +58,7 @@ namespace TwitterBook2.Controllers.V1
 
             var result = await _postService.UpdatePostAsync(post);
             if (result)
-                return Ok(post);
+                return Ok(_mapper.Map<PostResponse>(post));
 
             return NotFound();
         }
@@ -57,7 +66,9 @@ namespace TwitterBook2.Controllers.V1
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _postService.GetPostsAsync());
+            var posts = await _postService.GetPostsAsync();
+
+            return Ok(_mapper.Map<List<PostResponse>>(posts));
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
@@ -75,9 +86,8 @@ namespace TwitterBook2.Controllers.V1
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
-            var response = new PostResponse { Id = post.Id };
 
-            return Created(locationUri, response);
+            return Created(locationUri, _mapper.Map<PostResponse>(post));
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
