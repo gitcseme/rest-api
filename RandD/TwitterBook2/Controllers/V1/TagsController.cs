@@ -39,8 +39,6 @@ namespace TwitterBook2.Controllers.V1
         [HttpPost(ApiRoutes.Tags.Create)]
         public async Task<IActionResult> Create([FromBody] CreateTagRequest request)
         {
-            // applied fluent validation for CreateTagRequest. it will be caught here on ModelState.
-
             var newTag = new Tag
             {
                 Name = request.TagName, 

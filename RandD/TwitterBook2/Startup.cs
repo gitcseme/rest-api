@@ -17,6 +17,7 @@ using TwitterBook2.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using FluentValidation.AspNetCore;
+using TwitterBook2.Filters;
 
 namespace TwitterBook2
 {
@@ -121,8 +122,11 @@ namespace TwitterBook2
             services.AddScoped<IIdentityService, IdentityService>();
 
             services
-                .AddMvc()
-                .AddFluentValidation(mvcConf => mvcConf.RegisterValidatorsFromAssemblyContaining<Startup>());
+                .AddMvc(options => 
+                {
+                    options.Filters.Add<ValidationFilter>();
+                })
+                .AddFluentValidation(mvcConf => mvcConf.RegisterValidatorsFromAssemblyContaining<Startup>()); // Fluent validation
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
