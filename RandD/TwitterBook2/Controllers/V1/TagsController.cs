@@ -7,7 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TwitterBook2.Contracts.V1;
+using TwitterBook2.Contracts.V1.Requests;
 using TwitterBook2.Contracts.V1.Responses;
+using TwitterBook2.Domain;
+using TwitterBook2.Extensions;
 using TwitterBook2.Services;
 
 namespace TwitterBook2.Controllers.V1
@@ -31,6 +34,27 @@ namespace TwitterBook2.Controllers.V1
             var tags = await _postService.GetAllTagsAsync();
 
             return Ok(_mapper.Map<List<TagResponse>>(tags));
+        }
+
+        [HttpPost(ApiRoutes.Tags.Create)]
+        public async Task<IActionResult> Create([FromBody] CreateTagRequest request)
+        {
+            // applied fluent validation for CreateTagRequest. it will be caught here on ModelState.
+
+            var newTag = new Tag
+            {
+                Name = request.TagName, 
+                CreatorId = HttpContext.GetUserId(),
+                CreatedOn = DateTime.UtcNow
+            };
+
+            var created = await _postService.CreateTagAsync(newTag);
+            if (!created)
+                return BadRequest(new { error = "Unable to create tag" });
+
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
+            var locationUri = baseUrl + "/" + ApiRoutes.Tags.Get.Replace("{tagName}", newTag.Name);
+            return Created(locationUri, _mapper.Map<TagResponse>(newTag));
         }
 
     }
