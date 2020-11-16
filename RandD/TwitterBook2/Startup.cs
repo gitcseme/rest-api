@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using TwitterBook2.Filters;
+using TwitterBook2.Extensions;
 
 namespace TwitterBook2
 {
@@ -59,64 +60,9 @@ namespace TwitterBook2
             services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
 
             // JWT settings
-            var jwtSettings = new JwtSettings();
-            Configuration.Bind(nameof(jwtSettings), jwtSettings);
-            services.AddSingleton(jwtSettings);
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                RequireExpirationTime = false,
-                ValidateLifetime = true
-            };
-
-            services.AddSingleton(tokenValidationParameters);
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.SaveToken = true;
-                x.TokenValidationParameters = tokenValidationParameters;
-            });
-
+            services.AddJwt(Configuration);
             // Swagger settings
-            services.AddSwaggerGen(x =>
-            {
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "TwitterBook API", Version = "v1" });
-
-                x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-                {
-                    Description = "JWT Authorization header using the bearer scheme",
-                    Name = "Authrization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
-                });
-
-                x.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
-                });
-            });
+            services.AddSwagger();
 
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IIdentityService, IdentityService>();
