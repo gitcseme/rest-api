@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,7 +32,7 @@ namespace TwitterBook2.Controllers.V1
         /// </summary>
         /// <response code="200">Returns all tags</response>
         [HttpGet(ApiRoutes.Tags.GetAll)]
-        [Authorize(Policy = "TagViewer")]
+        //[Authorize(Policy = "TagViewer")]
         public async Task<IActionResult> GetAll()
         {
             var tags = await _postService.GetAllTagsAsync();
