@@ -12,7 +12,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TwitterBook2.Cache;
 using TwitterBook2.Options;
+using TwitterBook2.Services;
 
 namespace TwitterBook2.Extensions
 {
@@ -99,6 +101,16 @@ namespace TwitterBook2.Extensions
             });
 
             services.AddSwaggerExamplesFromAssemblyOf<Startup>();
+        }
+
+        public static void AddRedisCaching(this IServiceCollection services, IConfiguration Configuration)
+        {
+            var redisCacheSettings = new RedisCacheSettings();
+            Configuration.GetSection(nameof(RedisCacheSettings)).Bind(redisCacheSettings);
+            services.AddSingleton(redisCacheSettings);
+
+            services.AddStackExchangeRedisCache(options => options.Configuration = redisCacheSettings.ConnectionString);
+            services.AddSingleton<IResponseCacheService, ResponseCacheService>();
         }
     }
 }
