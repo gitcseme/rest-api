@@ -1,0 +1,39 @@
+version: '3.5'
+
+networks:
+  localnet:
+    name: localnet
+
+services:
+  rest-api:
+    build:
+      context: .
+      dockerfile: TwitterBook2/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - db-mssql-server
+      - redis
+    networks:
+      - localnet
+
+  db-mssql-server:
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: db-mssql-server
+    environment: 
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Shuvo123
+      - MSSQL_TCP_PORT=1433
+    ports: 
+      - "1400:1433"
+    networks: 
+      - localnet
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - localnet

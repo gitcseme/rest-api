@@ -7,6 +7,8 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>${NoWarn};1591</NoWarn>
+    <UserSecretsId>46bbdc7d-4c72-4854-848c-884374f404da</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   
   <ItemGroup>
@@ -24,12 +26,21 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="6.0.1" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\TwitterBook2.Contracts\TwitterBook2.Contracts.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
   </ItemGroup>
 
 
