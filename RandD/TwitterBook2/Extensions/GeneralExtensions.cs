@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
@@ -13,6 +17,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TwitterBook2.Cache;
+using TwitterBook2.Contracts.HealthChecks;
+using TwitterBook2.CustomHealthCheck;
+using TwitterBook2.Data;
 using TwitterBook2.Options;
 using TwitterBook2.Services;
 
@@ -109,8 +116,41 @@ namespace TwitterBook2.Extensions
             Configuration.GetSection(nameof(RedisCacheSettings)).Bind(redisCacheSettings);
             services.AddSingleton(redisCacheSettings);
 
+            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisCacheSettings.ConnectionString)); // needed to create custom health check
             services.AddStackExchangeRedisCache(options => options.Configuration = redisCacheSettings.ConnectionString);
             services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+        }
+
+        public static void AddHealthChecking(this IServiceCollection services, IConfiguration Configuration)
+        {
+            services.AddHealthChecks()
+                .AddDbContextCheck<DataContext>()
+                .AddCheck<RedisHealthCheck>("Redis");
+        }
+
+        public static void UseHealthChecksCustomized(this IApplicationBuilder app)
+        {
+            app.UseHealthChecks("/health", new HealthCheckOptions
+            {
+                ResponseWriter = async (context, report) =>
+                {
+                    context.Response.ContentType = "application/json";
+
+                    var response = new HealthCheckResponse
+                    {
+                        Status = report.Status.ToString(),
+                        Checks = report.Entries.Select(x => new HealthCheck
+                        {
+                            Component = x.Key,
+                            Status = x.Value.Status.ToString(),
+                            Description = x.Value.Description
+                        }),
+                        Duration = report.TotalDuration
+                    };
+
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+                }
+            });
         }
     }
 }

@@ -12,5 +12,4 @@ RUN dotnet publish ./TwitterBook2/TwitterBook2.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 COPY --from=build /app/out .
-
 ENTRYPOINT ["dotnet", "TwitterBook2.dll"]

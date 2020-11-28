@@ -65,6 +65,8 @@ namespace TwitterBook2
             services.AddSwagger();
             // Redis
             services.AddRedisCaching(Configuration);
+            // Health check
+            services.AddHealthChecking(Configuration);
 
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IIdentityService, IdentityService>();
@@ -84,6 +86,9 @@ namespace TwitterBook2
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            //app.UseHealthChecks("/health");
+            app.UseHealthChecksCustomized();
 
             var swaggerOptions = new SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
