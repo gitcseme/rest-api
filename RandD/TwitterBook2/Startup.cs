@@ -63,6 +63,8 @@ namespace TwitterBook2
             services.AddJwt(Configuration);
             // Swagger settings
             services.AddSwagger();
+            // Redis
+            services.AddRedisCaching(Configuration);
 
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IIdentityService, IdentityService>();

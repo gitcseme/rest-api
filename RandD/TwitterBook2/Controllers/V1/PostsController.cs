@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitterBook2.Cache;
 using TwitterBook2.Contracts.V1;
 using TwitterBook2.Contracts.V1.Responses;
 using TwitterBook2.Controllers.V1.Requests;
@@ -27,8 +28,10 @@ namespace TwitterBook2.Controllers.V1
             _mapper = mapper;
         }
 
+        
         [HttpGet(ApiRoutes.Posts.Get)]
         [Authorize(Policy = "MustWorkForTourBD")]
+        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] Guid postId)
         {
             var post = await _postService.GetPostByIdAsync(postId);
@@ -64,6 +67,7 @@ namespace TwitterBook2.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
+        [Cached(600)]
         public async Task<IActionResult> GetAll()
         {
             var posts = await _postService.GetPostsAsync();
